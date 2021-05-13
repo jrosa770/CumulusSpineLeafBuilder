@@ -1,0 +1,68 @@
+## == Built on {{ time_stamp }} == ##
+
+## Host: {{ hostname }}
+## Device Type: {{ device_type }}
+## Device OS: {{ os }}
+#
+net add hostname {{ hostname }}
+
+### Add Admin Lookpback
+net add loopback lo ip address {{ lo_ip }}
+#
+### OOB MGMT
+net add interface eth0 ip address {{ oob_ip }}
+#
+{% for item in vlans %}
+### Add VLAN {{ item.vid }} ({{ item.name }} VLAN )
+net add bridge bridge vids {{ item.vid }}
+#
+{% endfor %}
+{% for item in vlans %}
+{% if item.vlan_ip is defined %}
+### Add L3 address to VLAN {{ item.vid }}
+net add vlan {{ item.vid }} ip address {{ item.vlan_ip }}
+#
+{% endif %}
+{% if item.vlan_vrr_ip is defined and item.vlan_vrr_mac is defined %}
+### Add VRR to VLAN {{ item.vid }}
+net add vlan {{ item.vid }} ip address-virtual {{ item.vlan_vrr_mac }} {{ item.vlan_vrr_ip }}
+#
+{% endif %}
+{% endfor %}
+## Interfaces 
+#
+{% for item in interfaces%}
+{% if item.type == 'l2-access' %}
+### Enable L2 on interfaces {{ item.name }}
+net add bridge bridge ports {{ item.name }}
+#
+### Enable port {{ item.name }} as VLAN {{ item.l2_vid }} Access Port 
+net add interface {{ item.name }} bridge access {{ item.l2_vid }}
+net add interface {{ item.name }} alias {{ item.description }}
+#
+{% elif item.type == 'l2-trunk' %}
+net add bridge bridge ports {{ item.name }}
+#
+### Enable L2 Trunking on port {{ item.name }} for vlans {{ item.l2_vid }} (PVID 1 is default)
+net add interface swp4 bridge vids {{ item.l2_vid }}
+net add interface {{ item.name }} alias {{ item.description }}
+#
+{% elif item.type == 'routed' %}
+### Enable L3 on interfaces {{ item.name }}
+net add interface {{ item.name }} ip address {{ item.swp_ip }}
+net add interface {{ item.name }} alias {{ item.description }}
+#
+{% endif %}
+{% endfor %}
+### Routes
+{% if static_routes.mgmt_default is defined %}
+net add routing route {{ static_routes.mgmt_default }}
+{% endif %}
+{% if static_routes.others is defined %}
+{% for routes in static_routes.others %}
+net add routing route {{ routes }}
+{% endfor %}
+{% endif %}
+#
+### Commit changes
+net commit

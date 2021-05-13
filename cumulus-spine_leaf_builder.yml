@@ -1,0 +1,76 @@
+---
+- name: 'cumulus spine or leaf switch configuration builder'
+  hosts: cumulus
+  gather_facts: false
+
+  vars:
+    node_expected_keys:
+      [
+        'hostname',
+        'device_type',
+        'lo_ip',
+        'oob_ip',
+      ]
+
+  tasks:
+    - name: Set Timestamp
+      set_fact: time_stamp="{{ lookup('pipe','date \"+%m-%d-%Y_%H%M\"') }}"
+      tags:
+        - pre_config
+
+    - name: Obtain {{ inventory_hostname }}.yml
+      include_vars: ../hostvars/cumulus/l2/{{ inventory_hostname }}.yml
+      when: (inventory_hostname in groups ['l2_leaf'])
+      tags:
+        - pre_config
+
+    - name: Obtain {{ inventory_hostname }}.yml
+      include_vars: ../hostvars/cumulus/l3/{{ inventory_hostname }}.yml
+      when: (inventory_hostname in groups ['l3_leaf'])
+      tags:
+        - pre_config
+
+    - name: Obtain {{ inventory_hostname }}.yml
+      include_vars: ../hostvars/cumulus/l2/{{ inventory_hostname }}.yml
+      when: (inventory_hostname in groups ['l2_spine'])
+      tags:
+        - pre_config
+
+    - name: Obtain {{ inventory_hostname }}.yml
+      include_vars: ../hostvars/cumulus/l3/{{ inventory_hostname }}.yml
+      when: (inventory_hostname in groups ['l3_spine'])
+      tags:
+        - pre_config
+
+    - name: Build Configuration from Template
+      ansible.builtin.template:
+        src: templates/spine_leaf_build.j2
+        dest: outputs/l2-leaf/{{ inventory_hostname }}_{{ time_stamp }}.sh
+      when: (inventory_hostname in groups ['l2_leaf'])
+      tags:
+        - pre_config
+
+    - name: Build Configuration from Template
+      ansible.builtin.template:
+        src: templates/spine_leaf_build.j2
+        dest: outputs/l3-leaf/{{ inventory_hostname }}_{{ time_stamp }}.sh
+      when: (inventory_hostname in groups ['l3_leaf'])
+      tags:
+        - pre_config
+
+    - name: Build Configuration from Template
+      ansible.builtin.template:
+        src: templates/spine_leaf_build.j2
+        dest: outputs/l2-spine/{{ inventory_hostname }}_{{ time_stamp }}.sh
+      when: (inventory_hostname in groups ['l2_spine'])
+      tags:
+        - pre_config
+
+    - name: Build Configuration from Template
+      ansible.builtin.template:
+        src: templates/spine_leaf_build.j2
+        dest: outputs/l3-spine/{{ inventory_hostname }}_{{ time_stamp }}.sh
+      when: (inventory_hostname in groups ['l3_spine'])
+      tags:
+        - pre_config
+...

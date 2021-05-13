@@ -1,0 +1,20 @@
+---
+- name: 'cumulus nclu based based configuration playbook'
+  hosts: cumulus
+  gather_facts: false
+
+  tasks:
+    - name: Obtain {{ inventory_hostname }}.yml
+      include_vars: outputs/nclu/l2-leaf/{{ inventory_hostname }}.yml
+      when: (inventory_hostname in groups ['l2_leaf'])
+      tags:
+        - pre_config
+
+    - name: Load Configuration
+      community.network.nclu:
+        commands: 
+          "{{ config }}"
+        commit: true
+      tags:
+        - config
+...

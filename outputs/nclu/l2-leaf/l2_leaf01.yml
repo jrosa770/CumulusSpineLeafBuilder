@@ -1,0 +1,102 @@
+---
+config:
+  ## == Built on 04-08-2021_1801 == ##
+
+  ## Host: l2_leaf01
+  ## Device Type: l2-leaf
+  ## Device OS: cumulus
+  #
+  #- add hostname l2_leaf01
+
+  ### Add Admin Lookpback
+  - add loopback lo ip address 10.255.1.1/32
+  #
+  ### OOB MGMT
+  # - add interface eth0 ip address dhcp
+  #
+  ### Add VLAN 2 (egress VLAN )
+  - add bridge bridge vids 2
+  #
+  ### Add VLAN 100 (VLAN100 VLAN )
+  - add bridge bridge vids 100
+  #
+  ### Add VLAN 200 (VLAN200 VLAN )
+  - add bridge bridge vids 200
+  #
+  ### Add L3 address to VLAN 2
+  - add vlan 2 ip address 10.2.2.10/24
+  #
+  ### Add L3 address to VLAN 100
+  - add vlan 100 ip address 10.100.100.1/24
+  #
+  ### Add VRR to VLAN 100
+  - add vlan 100 ip address-virtual 00:00:5e:00:01:64 10.100.100.254/24
+  #
+  ### Add L3 address to VLAN 200
+  - add vlan 200 ip address 10.200.200.1/24
+  #
+  ### Add VRR to VLAN 200
+  - add vlan 200 ip address-virtual 00:00:5e:00:01:c8 10.200.200.254/24
+  #
+  ## Interfaces 
+  #
+  ### Enable L2 on interfaces swp1
+  - add bridge bridge ports swp1
+  #
+  ### Enable port swp1 as VLAN 2 Access Port 
+  - add interface swp1 bridge access 2
+  - add interface swp1 alias spine01-swp1
+  #
+  ### Enable L2 on interfaces swp2
+  - add bridge bridge ports swp2
+  #
+  ### Enable port swp2 as VLAN 2 Access Port 
+  - add interface swp2 bridge access 2
+  - add interface swp2 alias spine02-swp1
+  #
+  - add bridge bridge ports swp4
+  #
+  ### Enable L2 Trunking on port swp4 for vlans 2,100,200 (PVID 1 is default)
+  - add interface swp4 bridge vids 2,100,200
+  - add interface swp4 alias leaf02-swp4
+  #
+  - add bridge bridge ports swp5
+  #
+  ### Enable L2 Trunking on port swp5 for vlans 2,100,200 (PVID 1 is default)
+  - add interface swp4 bridge vids 2,100,200
+  - add interface swp5 alias leaf03-swp4
+  #
+  ### Enable L2 on interfaces swp7
+  - add bridge bridge ports swp7
+  #
+  ### Enable port swp7 as VLAN 100 Access Port 
+  - add interface swp7 bridge access 100
+  - add interface swp7 alias host-vlan100
+  #
+  ### Enable L2 on interfaces swp8
+  - add bridge bridge ports swp8
+  #
+  ### Enable port swp8 as VLAN 200 Access Port 
+  - add interface swp8 bridge access 200
+  - add interface swp8 alias host-vlan200
+  #
+  ### Routes
+  # - add routing route 0.0.0.0/0 10.1.0.1 vrf mgmt
+  # - add routing route 0.0.0.0/0 10.2.2.254
+  - add routing route 10.255.1.2/32 10.2.2.20
+  - add routing route 10.255.1.3/32 10.2.2.30
+  #
+  ### Commit changes
+  #- commit
+
+  ### BGP
+  - add bgp autonomous-system 65101
+  - add bgp bestpath as-path multipath-relax
+  - add bgp neighbor 10.2.2.1 remote-as external
+  - add bgp neighbor 10.2.2.2 remote-as external
+  - add bgp network 10.255.1.1/32
+  - add bgp network 10.2.2.0/24
+  - add bgp network 10.100.100.0/24
+  - add bgp network 10.200.200.0/24
+  ### Commit changes
+  #- commit
