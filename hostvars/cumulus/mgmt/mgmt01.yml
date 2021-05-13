@@ -1,0 +1,90 @@
+---
+hostname: l2_leaf01
+device_type: 'l2-leaf'
+os: cumulus
+os_ver: '4.3'
+lo_ip: '10.255.1.10/32'
+oob_interface: NA
+oob_ip: NA
+oob_sw: NA
+
+vlans:
+  - name: infra_oob_vrf_mgmt
+    vid: 10
+    vlan_ip: '10.255.10.1/24'
+    vlan_vrr_ip: '10.255.10.254/24'
+    vlan_vrr_mac: '00:00:5e:00:0a'
+    state: keep
+
+interfaces:
+  - name: swp1
+    description: 'spine01-eth0'
+    type: l2-access
+    l2_vid: 10
+    state: keep
+
+  - name: swp2
+    description: 'spine02-eth0'
+    type: l2-access
+    l2_vid: 10
+    state: keep
+
+  - name: swp3
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp4
+    description: 'leaf01-eth0'
+    type: l2-access
+    l2_vid: 10
+    state: keep
+
+  - name: swp5
+    description: 'leaf02-eth0'
+    type: l2-access
+    l2_vid: 10
+    state: keep
+
+  - name: swp6
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp7
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp8
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp9
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp10
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp11
+    description: 'core01-swp1'
+    type: routed
+    swp_ip: '10.0.0.10/24'
+    state: keep
+
+static_routes:
+#  mgmt_default:
+  others:
+    - '0.0.0.0/0 10.0.0.254'
+...

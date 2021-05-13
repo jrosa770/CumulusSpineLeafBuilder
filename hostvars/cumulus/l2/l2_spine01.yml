@@ -1,0 +1,121 @@
+---
+hostname: spine01
+device_type: 'l2-spine'
+os: cumulus
+os_ver: '4.2'
+lo_ip: '10.255.0.1/32'
+oob_interface: eth0
+oob_ip: '10.1.0.10/24'
+oob_sw: mgmt01
+
+vlans:
+  - name: egress
+    vid: 2
+    vlan_ip: '10.2.2.1/24'
+    vlan_vrr_ip: '10.2.2.254'
+    vlan_vrr_mac: '00:00:5e:00:01:02'
+    state: keep
+
+interfaces:
+  - name: swp1
+    description: 'leaf01-swp1'
+    type: l2-access
+    l2_vid: 2
+    state: keep
+
+  - name: swp2
+    description: 'leaf02-swp1'
+    type: l2-access
+    l2_vid: 2
+    state: keep
+
+  - name: swp3
+    description: 'leaf03-swp1'
+    type: l2-access
+    l2_vid: 2
+    state: keep
+
+  - name: swp4
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp5
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp6
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp7
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp8
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp9
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp10
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp11
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+static_routes:
+  mgmt_default: '0.0.0.0/0 10.1.0.1 vrf mgmt'
+#  - others:
+
+bgp:
+  state: present
+  local_as: 65001
+  default_advertise: present
+
+bgp_advertise:
+  - '10.255.0.1/32'
+  - '10.2.2.0/24'
+
+bgp_peer_groups:
+  - name: ebgp_leaf
+
+peer_group_attributes:
+  - 'remote_as external'
+
+bgp_neighbors:
+  - neighbor_ip: '10.2.2.10'
+    neighbor_name: leaf01
+    peer_group: ebgp_leaf
+
+  - neighbor_ip: '10.2.2.20'
+    neighbor_name: leaf02
+    peer_group: ebgp_leaf
+
+  - neighbor_ip: '10.2.2.30'
+    neighbor_name: leaf03
+    peer_group: ebgp_leaf
+
+#  - neighbor_ip: 'listen range 10.1.0.0/24'
+#    neighbor_name: vlan2_peers
+#    peer_group: ebgp_leaf
+...

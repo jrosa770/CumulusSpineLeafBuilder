@@ -1,0 +1,132 @@
+---
+hostname: l2_leaf01
+device_type: 'l2-leaf'
+os: cumulus
+os_ver: '4.2'
+lo_ip: '10.255.1.1/32'
+oob_interface: eth0
+oob_ip: '10.1.0.101/24'
+oob_sw: mgmt01
+
+vlans:
+  - name: egress
+    vid: 2
+    vlan_ip: '10.2.2.10/24'
+    state: keep
+
+  - name: VLAN100
+    vid: 100
+    vlan_ip: '10.100.100.1/24'
+    vlan_vrr_ip: '10.100.100.254/24'
+    vlan_vrr_mac: '00:00:5e:00:01:64'
+    state: keep
+
+  - name: VLAN200
+    vid: 200
+    vlan_ip: '10.200.200.1/24'
+    vlan_vrr_ip: '10.200.200.254/24'
+    vlan_vrr_mac: '00:00:5e:00:01:c8'
+    state: keep
+
+interfaces:
+  - name: swp1
+    description: 'spine01-swp1'
+    type: l2-access
+    l2_vid: 2
+    state: keep
+
+  - name: swp2
+    description: 'spine02-swp1'
+    type: l2-access
+    l2_vid: 2
+    state: keep
+
+  - name: swp3
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp4
+    description: 'leaf02-swp4'
+    type: l2-trunk
+    l2_vid: 2,100,200
+    state: keep
+
+  - name: swp5
+    description: 'leaf03-swp4'
+    type: l2-trunk
+    l2_vid: 2,100,200
+    state: keep
+
+  - name: swp6
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp7
+    description: 'host-vlan100'
+    type: l2-access
+    l2_vid: 100
+    state: keep
+
+  - name: swp8
+    description: 'host-vlan200'
+    type: l2-access
+    l2_vid: 200
+    state: keep
+
+  - name: swp9
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp10
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+  - name: swp11
+    description: unused
+    type: unused
+    l2_vid: unassigned
+    state: keep
+
+static_routes:
+  mgmt_default: '0.0.0.0/0 10.1.0.1 vrf mgmt'
+  others:
+    - '0.0.0.0/0 10.2.2.254'
+    - '10.255.1.2/32 10.2.2.20'
+    - '10.255.1.3/32 10.2.2.30'
+
+bgp:
+  state: present
+  local_as: 65101
+  default_advertise: absent
+
+bgp_advertise:
+  - '10.255.1.1/32'
+  - '10.2.2.0/24'
+  - '10.100.100.0/24'
+  - '10.200.200.0/24'
+
+bgp_peer_groups:
+  - name: absent
+
+peer_group_attributes:
+  - 'remote_as external'
+
+bgp_neighbors:
+  - neighbor_ip: '10.2.2.1'
+    neighbor_name: spine01
+    remote_as: external
+    peer_group: absent
+
+  - neighbor_ip: '10.2.2.2'
+    neighbor_name: spine02
+    remote_as: external
+    peer_group: absent
+...
